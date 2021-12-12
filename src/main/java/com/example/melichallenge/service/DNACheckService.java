@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,8 +16,9 @@ import java.util.stream.Stream;
 public class DNACheckService {
     @Autowired
     private DNACheckRepository repository;
+    @Autowired
+    private DNACheckStatsService dnaCheckStatsService;
 
-    @Transactional
     public boolean checkIfDNAIsSimian(String[] dnaSample) throws NoSuchAlgorithmException {
         String sampleHash = this.makeSHA256Hash(String.join("", dnaSample));
 
@@ -43,6 +43,7 @@ public class DNACheckService {
                 });
     }
 
+    @Transactional
     void saveCheckResult(String sampleHash, boolean result) {
         DNACheck dnaCheck = new DNACheck();
         dnaCheck.setHash(sampleHash);
@@ -50,12 +51,13 @@ public class DNACheckService {
         this.repository.save(dnaCheck);
 
         if (result) {
-            this.incrementCounterForSimian();
+            while(this.dnaCheckStatsService
+                    .incrementSimianCountFromValue(this.dnaCheckStatsService.findById().getSimiansCount()) == 0);
         } else {
-            this.incrementCounterForHuman();
+            while(this.dnaCheckStatsService
+                    .incrementHumanCountFromValue(this.dnaCheckStatsService.findById().getHumansCount()) == 0);
         }
     }
-
 
     char[][] getChars(String[] dnaSample) {
         return Stream.of(dnaSample)
@@ -163,21 +165,5 @@ public class DNACheckService {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
         return HexUtils.toHexString(digest.digest(input.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    void incrementCounterForSimian() {
-        this.repository.incrementSimiansCount();
-    }
-
-    void incrementCounterForHuman() {
-        this.repository.incrementHumansCount();
-    }
-
-    public BigInteger getSiminasCount() {
-        return this.repository.getSimiansCount().orElse(BigInteger.ZERO);
-    }
-
-    public BigInteger getHumansCount() {
-        return this.repository.getHumansCount().orElse(BigInteger.ZERO);
     }
 }
