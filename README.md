@@ -20,7 +20,7 @@ humano, deve ser falso, como no exemplo abaixo:
 
 ```HTTP 200 {"is_simian": true}```
 
-#Níveis de Aceitação
+# Níveis de Aceitação
 
 ### Nível 1:
 Desenvolva uma API que esteja de acordo com os requisitos propostos acima, que seja capaz de validar uma sequência de
@@ -49,7 +49,7 @@ possamos ter acesso ao código.
   * O projeto deve conter testes automáticos, com uma boa cobertura do código.
 
 
-# Solução
+# Solução - Nível 3
 
 O código privado foi compartilhado com o usuário ITMLB no github:
 ```https://github.com/igorcavalcanti/meli_challenge```
@@ -60,8 +60,7 @@ o schema do banco é criado ao inicializar.
 
 O Algoritmo tem ordem de execução O(m*n) no pior caso. Varre a tabela analisando se os itens
 podem iniciar a sequência desejada nas direções diagonal superior ("nordeste"), direita (leste), 
-diagonal inferior direta (sudeste) e para baixo (sul), direções que garantem análise se repetição.
-No pior caso, pois a execução para quando a resposta é encontrada.
+diagonal inferior direta (sudeste) e para baixo (sul), direções que garantem análise sem repetição.
 
 Para executar a API:
 * dev: ```./mvnw spring-boot:run -P dev```
