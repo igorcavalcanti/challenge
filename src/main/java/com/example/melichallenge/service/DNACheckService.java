@@ -1,5 +1,6 @@
 package com.example.melichallenge.service;
 
+import com.example.melichallenge.exception.InvalidRequestException;
 import com.example.melichallenge.model.DNACheck;
 import com.example.melichallenge.repository.DNACheckRepository;
 import org.apache.tomcat.util.buf.HexUtils;
@@ -20,7 +21,13 @@ public class DNACheckService {
     private DNACheckStatsService dnaCheckStatsService;
 
     public boolean checkIfDNAIsSimian(String[] dnaSample) throws NoSuchAlgorithmException {
-        String sampleHash = this.makeSHA256Hash(String.join("", dnaSample));
+        String allChars = String.join("", dnaSample);
+
+        if (Math.sqrt(allChars.length()) % 1 != 0) { //Must be squared.
+            throw new InvalidRequestException("Invalid DNA Sample.");
+        }
+
+        String sampleHash = this.makeSHA256Hash(allChars);
 
         return this.repository.findByHashEquals(sampleHash)
                 .map(DNACheck::isResult)
